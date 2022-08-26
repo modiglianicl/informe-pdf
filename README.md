@@ -1,2 +1,3 @@
 # informe-pdf
-Script de Rmarkdown que permite hacer un informe dependiendo lo que tenga la tabla anexada
+Rmarkdown Script that lets your make a report depending on what the tables has (see Excel table example). It is full writen in LaTeX format and I strongly recommend to install the tinytex package.
+

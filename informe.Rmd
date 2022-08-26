@@ -1,0 +1,114 @@
+---
+date: "2022-08-15"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+params:
+  rut: "17809470-K"
+---
+
+```{r informacion_accionistas, include=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(tinytex)
+library(formattable)
+library(kableExtra)
+knitr::opts_chunk$set(echo = TRUE)
+
+## La BD para obtener toda la información
+
+data <- openxlsx::read.xlsx("trans.xlsx",sheet="tabla_trans")
+data <- janitor::clean_names(data)
+data$fecha_notaria <- janitor::convert_to_date(data$fecha_notaria)
+
+## Un summarise de los datos necesarios para el informe
+contratos_persona <- data %>% 
+  group_by(id_trans,accionista,rut,fecha_notaria) %>% 
+  summarise(q_acciones = sum(q_acciones),
+            total = sum(total),
+            por_pagar = sum(por_pagar))
+
+## Aquí se aplica el filtro que vendra de parametros de Rmarkdown
+## De aqui obtenemos toda la info
+
+filtro_reporte <- contratos_persona %>% 
+  filter(rut == params$rut)
+
+## Tabla final en donde asignamos 0 a valores NA y seleccionamos solo
+## info relevante para el "cliente".
+
+tabla_final <- filtro_reporte %>% 
+  ungroup() %>% 
+  select(id_trans,fecha_notaria,q_acciones,total,por_pagar) %>%
+  mutate(id_trans = as.character(id_trans)) %>% 
+  replace_na(replace=list(id_trans = "0", por_pagar = 0))
+
+## Formateamos "total" y "por pagar" por formato de moneda. 
+
+tabla_final$total <- currency(tabla_final$total, digits = 0L,
+                              big.mark = ".")
+tabla_final$por_pagar <- currency(tabla_final$por_pagar, digits = 0L,
+                                  big.mark = ".")
+
+
+### Escalares
+
+## Obtener nombre persona
+nombre_persona <- filtro_reporte$accionista[1]
+```
+# ![Logo empresa](assets/logo4.png "Logo empresa")
+# CERTIFICADO DE ACCIONES LA CASITA DEL TERROR S.A
+**FELIPE VILLARROEL BECERRA**, Gerente General de La Casita del terror S.A., Rut: 17.809.470-K, viene a certificar que don(ña) **`r nombre_persona`**, Rut **`r params$rut`**, es accionista de esta empresa, con una cantidad total de **`r sum(tabla_final$q_acciones)`** acciones. La tabla de resumen de su(s) contratos se puede encontrar a continuación:
+\
+```{r tabla_resumen, include = TRUE,echo = FALSE, message = FALSE, warning=FALSE}
+###Tabla de totales
+
+## Creamos una funcion en donde suma solo si es un valor numerico
+
+sumador <- function(z) {
+  if (is.numeric(z)) {
+    sum(z)
+  } else {
+    ""
+  }
+}
+
+## creamos un pequeño dataset donde generamos los totales con la función
+
+totales <- as.data.frame(lapply(tabla_final,sumador))
+
+## Unimos tabla final con totales
+
+tabla_final_totales <- rbind(tabla_final,totales)
+tabla_final_totales$fecha_notaria <- as.character(tabla_final_totales$fecha_notaria)
+
+## Hardcodeamos "Totales" en la columna de fechas, ya que da un valor NA
+tabla_final_totales <- tabla_final_totales %>% 
+  replace_na(replace =list(fecha_notaria = "TOTALES")) 
+
+## Presentamos la tabla final con los totales
+knitr::kable(tabla_final_totales,
+             col.names = c("ID","Fecha Contrato","Cantidad Acciones","Valor Suscripción","Saldo por pagar"),
+             label = "Resumen de acciones",
+             format = "latex") %>% 
+  row_spec(nrow(tabla_final_totales),bold=T,hline_after = T) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = T)
+```
+\
+Las transacciones previamente citadas se encuentran anotadas en el “libro de Registro Individual de Accionistas bajo el folio 33, del libro 77” de esta sociedad.
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\begin{center}-------------------------------------------------------------------- \end{center}
+\begin{center}FELIPE VILLARROEL BECERRA\end{center}
+\begin{center}REPRESENTANTE LEGAL\end{center}
+\
