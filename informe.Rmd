@@ -6,7 +6,7 @@ output:
     df_print: paged
   word_document: default
 params:
-  rut: "17809470-K"
+  rut: "17809470-K" #usar K mayusculas!
 ---
 
 ```{r informacion_accionistas, include=FALSE, message=FALSE, warning=FALSE}
@@ -43,7 +43,7 @@ tabla_final <- filtro_reporte %>%
   ungroup() %>% 
   select(id_trans,fecha_notaria,q_acciones,total,por_pagar) %>%
   mutate(id_trans = as.character(id_trans)) %>% 
-  replace_na(replace=list(id_trans = "0", por_pagar = 0))
+  replace_na(replace =list(id_trans = "0", por_pagar = 0))
 
 ## Formateamos "total" y "por pagar" por formato de moneda. 
 
@@ -52,15 +52,27 @@ tabla_final$total <- currency(tabla_final$total, digits = 0L,
 tabla_final$por_pagar <- currency(tabla_final$por_pagar, digits = 0L,
                                   big.mark = ".")
 
+### Obtencion Libro y Folio
+
+librofolio <- openxlsx::read.xlsx("trans.xlsx",sheet="folio_libro")
+librofolio <- janitor::clean_names(librofolio)
+filtro_librofolio <- librofolio %>% 
+  filter(rut == params$rut)
+
+
 
 ### Escalares
 
 ## Obtener nombre persona
 nombre_persona <- filtro_reporte$accionista[1]
+## Obtener numero de libro
+libro <- filtro_librofolio$libro
+## Obtener numero de folio
+folio <- filtro_librofolio$folio
 ```
 # ![Logo empresa](assets/logo4.png "Logo empresa")
-# CERTIFICADO DE ACCIONES LA CASITA DEL TERROR S.A
-**FELIPE VILLARROEL BECERRA**, Gerente General de La Casita del terror S.A., Rut: 17.809.470-K, viene a certificar que don(ña) **`r nombre_persona`**, Rut **`r params$rut`**, es accionista de esta empresa, con una cantidad total de **`r sum(tabla_final$q_acciones)`** acciones. La tabla de resumen de su(s) contratos se puede encontrar a continuación:
+# CERTIFICADO DE ACCIONES SUDMEDICA QUILLOTA S.A
+**CESAR GERÓNIMO MENDOZA DEVIA**, Gerente General de Sudmédica Quillota S.A., Rut: 76.912.075-0, viene a certificar que don(ña) **`r nombre_persona`**, Rut **`r params$rut`**, es accionista de esta empresa, con una cantidad total de **`r sum(tabla_final$q_acciones)`** acciones. La tabla de resumen de su(s) contratos se puede encontrar a continuación:
 \
 ```{r tabla_resumen, include = TRUE,echo = FALSE, message = FALSE, warning=FALSE}
 ###Tabla de totales
@@ -97,7 +109,7 @@ knitr::kable(tabla_final_totales,
   kable_styling(bootstrap_options = "striped", full_width = T)
 ```
 \
-Las transacciones previamente citadas se encuentran anotadas en el “libro de Registro Individual de Accionistas bajo el folio 33, del libro 77” de esta sociedad.
+Las transacciones previamente citadas se encuentran anotadas en el libro de Registro Individual de Accionistas bajo el **folio** **`r folio`**, del **`r tolower(libro)`** de esta sociedad.
 \
 \
 \
@@ -109,6 +121,6 @@ Las transacciones previamente citadas se encuentran anotadas en el “libro de R
 \
 \
 \begin{center}-------------------------------------------------------------------- \end{center}
-\begin{center}FELIPE VILLARROEL BECERRA\end{center}
+\begin{center}CESAR GERÓNIMO MENDOZA DEVIA\end{center}
 \begin{center}REPRESENTANTE LEGAL\end{center}
 \
