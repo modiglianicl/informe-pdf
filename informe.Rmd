@@ -71,8 +71,8 @@ libro <- filtro_librofolio$libro
 folio <- filtro_librofolio$folio
 ```
 # ![Logo empresa](assets/logo4.png "Logo empresa")
-# CERTIFICADO DE ACCIONES SUDMEDICA QUILLOTA S.A
-**CESAR GERÓNIMO MENDOZA DEVIA**, Gerente General de Sudmédica Quillota S.A., Rut: 76.912.075-0, viene a certificar que don(ña) **`r nombre_persona`**, Rut **`r params$rut`**, es accionista de esta empresa, con una cantidad total de **`r sum(tabla_final$q_acciones)`** acciones. La tabla de resumen de su(s) contratos se puede encontrar a continuación:
+# CERTIFICADO DE ACCIONES 
+**FELIPE VILLARROEL BECERRA**, Gerente General de TUEMPRESA S.A, Rut: 76.777.777-K, viene a certificar que don(ña) **`r nombre_persona`**, Rut **`r params$rut`**, es accionista de esta empresa, con una cantidad total de **`r sum(tabla_final$q_acciones)`** acciones. La tabla de resumen de su(s) contratos se puede encontrar a continuación:
 \
 ```{r tabla_resumen, include = TRUE,echo = FALSE, message = FALSE, warning=FALSE}
 ###Tabla de totales
@@ -121,6 +121,6 @@ Las transacciones previamente citadas se encuentran anotadas en el libro de Regi
 \
 \
 \begin{center}-------------------------------------------------------------------- \end{center}
-\begin{center}CESAR GERÓNIMO MENDOZA DEVIA\end{center}
+\begin{center}FELIPE VILLARROEL BECERRA\end{center}
 \begin{center}REPRESENTANTE LEGAL\end{center}
 \
